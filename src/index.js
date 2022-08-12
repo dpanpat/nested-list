@@ -109,6 +109,19 @@ export default class NestedList {
     this.caret = new Caret();
   }
 
+  handlePaste(event){
+    let pastedData = (event.clipboardData || window.clipboardData).getData('Text');
+    if (window.getSelection) {
+      let selObj = window.getSelection();
+      let selRange = selObj.getRangeAt(0);
+      selRange.deleteContents();
+      selRange.insertNode(document.createTextNode(pastedData));
+      selObj.collapseToEnd()
+    }
+    event.stopPropagation()
+    event.preventDefault()
+  }
+
   /**
    * Returns list tag with items
    *
@@ -130,6 +143,7 @@ export default class NestedList {
 
     if (!this.readOnly) {
       // detect keydown on the last item to escape List
+      this.nodes.wrapper.addEventListener('paste', event => this.handlePaste(event));
       this.nodes.wrapper.addEventListener('keydown', (event) => {
         switch (event.key) {
           case 'Enter':
@@ -198,6 +212,8 @@ export default class NestedList {
 
     return wrapper;
   }
+
+
 
   /**
    * Renders children list
